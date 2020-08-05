@@ -59,7 +59,8 @@ const AUTHOR_CONTACT_DETAIL_PARAMETER = (
 							]
 						)
 					:	(
-							undefined
+							process
+							.cwd( )
 						)
 				);
 

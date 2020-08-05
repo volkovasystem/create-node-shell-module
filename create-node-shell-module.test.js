@@ -3,7 +3,10 @@
 const assert = require( "assert" );
 const util = require( "util" );
 
-const strictAssert = assert.strict;
+const strictAssert = (
+	assert
+	.strict
+);
 
 const createNodeShellModule = (
 	require( "./create-node-shell-module.js" )
@@ -106,8 +109,8 @@ const TEST_CLEANUP_DIRECTORY = (
 			}
 );
 
-const TEST_SAMPLE_UNIT = (
-	async	function TEST_SAMPLE_UNIT( ){
+const TEST_CREATE_NODE_SHELL_MODULE = (
+	async	function TEST_CREATE_NODE_SHELL_MODULE( ){
 				(
 					await	TEST_CLEANUP_DIRECTORY( )
 				);
@@ -116,23 +119,212 @@ const TEST_SAMPLE_UNIT = (
 					await	TEST_SETUP_DIRECTORY( )
 				);
 
+				(
+					await	executeShellCommand(
+								(
+									[
+										"git clone",
+										"https://github.com/volkovasystem/test-create-node-shell-module.git",
+										".test/test-create-node-shell-module"
+									]
+									.join(
+										" "
+									)
+								)
+							)
+				);
+
 				try{
+					const testValue = (
+						true
+					);
+
 					strictAssert
 					.equal(
 						(
-							true
+							await	createNodeShellModule(
+										(
+											".test/test-create-node-shell-module"
+										)
+									)
 						),
 
 						(
-							true
+							testValue
 						),
 
 						(
 							[
-								"#test-sample-unit;",
+								"#test-create-node-shell-module;",
 
-								"test sample unit;",
-								"must return true;"
+								"test create node shell module;",
+								`must return ${ testValue };`
+							]
+						)
+					);
+
+					return	(
+								true
+							);
+				}
+				catch( error ){
+					console
+					.error(
+						(
+							error
+						)
+					);
+
+					return	(
+								false
+							);
+				}
+				finally{
+					(
+						await	TEST_CLEANUP_DIRECTORY( )
+					);
+				}
+			}
+);
+
+const TEST_CREATE_NODE_SHELL_MODULE_FILE_LIST = (
+	async	function TEST_CREATE_NODE_SHELL_MODULE_FILE_LIST( ){
+				(
+					await	TEST_CLEANUP_DIRECTORY( )
+				);
+
+				(
+					await	TEST_SETUP_DIRECTORY( )
+				);
+
+				(
+					await	executeShellCommand(
+								(
+									[
+										"git clone",
+										"https://github.com/volkovasystem/test-create-node-shell-module.git",
+										".test/test-create-node-shell-module"
+									]
+									.join(
+										" "
+									)
+								)
+							)
+				);
+
+				try{
+					const fs = require( "fs" );
+
+					const fsAsync = (
+						fs
+						.promises
+					);
+
+					const testDirectory = (
+						".test/test-create-node-shell-module"
+					);
+
+					(
+						await	createNodeShellModule(
+									(
+										testDirectory
+									)
+								)
+					);
+
+					const testModuleFileList = (
+						[
+							".editorconfig",
+							".gitignore",
+							".npmignore",
+							"LICENSE",
+							"package.json",
+							"README.md",
+							"test-create-node-shell-module.module.js",
+							"test-create-node-shell-module.run.js",
+							"test-create-node-shell-module.test.js"
+						]
+					);
+
+					const actualModuleFileList = (
+						(
+							await	fsAsync
+									.readdir(
+										(
+											testDirectory
+										),
+
+										(
+											{
+												"withFileTypes": true
+											}
+										)
+									)
+						)
+						.filter(
+							(
+								( fileData ) => (
+									fileData
+									.isFile( )
+								)
+							)
+						)
+						.map(
+							(
+								( fileData ) => (
+									fileData
+									.name
+								)
+							)
+						)
+					);
+
+					const testValue = (
+						true
+					);
+
+					strictAssert
+					.equal(
+						(
+								(
+										(
+											testModuleFileList
+											.length
+										)
+									===	(
+											actualModuleFileList
+											.length
+										)
+								)
+
+							&&	(
+									testModuleFileList
+									.every(
+										(
+											( fileName ) => (
+												actualModuleFileList
+												.includes(
+													(
+														fileName
+													)
+												)
+											)
+										)
+									)
+								)
+						),
+
+						(
+							testValue
+						),
+
+						(
+							[
+								"#test-create-node-shell-module-file-list;",
+
+								"test create node shell module file list;",
+								`must contain the following, ${ testModuleFileList };`,
+								`must return ${ testValue };`
 							]
 						)
 					);
@@ -169,17 +361,29 @@ const TEST_SAMPLE_UNIT = (
 
 				console
 				.table(
-					[
-						{
-							"test": (
-								"test sample unit"
-							),
+					(
+						[
+							{
+								"test": (
+									"test create node shell module"
+								),
 
-							"result": (
-								await	TEST_SAMPLE_UNIT( )
-							)
-						}
-					]
+								"result": (
+									await	TEST_CREATE_NODE_SHELL_MODULE( )
+								)
+							},
+
+							{
+								"test": (
+									"test create node shell module file list"
+								),
+
+								"result": (
+									await	TEST_CREATE_NODE_SHELL_MODULE_FILE_LIST( )
+								)
+							}
+						]
+					)
 				);
 
 				(

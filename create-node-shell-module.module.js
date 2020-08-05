@@ -9,11 +9,13 @@
 
 		@copyright:
 			Richeve S. Bebedor
+
 			<
 				@license-year-range:
 					2020-present
 				@end-license-year-range
 			>
+
 			<
 				@contact-detail:
 					richeve.bebedor@gmail.com
@@ -205,18 +207,6 @@ const createNodeShellModule = (
 						}
 					@end-parameter-definition
 
-					@trigger-definition:
-						{
-							"trigger": "
-								[
-									@type:
-											object as Error
-									@end-type
-								]
-							"
-						}
-					@end-trigger-definition
-
 					@result-definition:
 						{
 							"result": "
@@ -228,6 +218,21 @@ const createNodeShellModule = (
 							"
 						}
 					@end-result-definition
+
+					@trigger-definition:
+						{
+							"trigger": "
+								[
+									@type:
+											object as Error
+									@end-type
+
+									<@tag:invalid-module-directory-path;>
+									<@tag:cannot-create-node-shell-module;>
+								]
+							"
+						}
+					@end-trigger-definition
 				*/
 
 				try{
@@ -433,7 +438,13 @@ const createNodeShellModule = (
 
 								(
 									{
+										"scripts": {
+											[ `${ moduleValueNamespace }` ]: `node ./${ moduleValueNamespace }.run.js`
+										},
 
+										"bin": {
+											[ `${ moduleValueNamespace }` ]: `${ moduleValueNamespace }.run.js`
+										},
 									}
 								)
 							)
