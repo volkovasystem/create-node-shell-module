@@ -4,9 +4,9 @@
 	"description": "Fast bootstrap node shell module.",
 	"main": "create-node-shell-module.js",
 	"scripts": {
-		"clean": "rm -rf ./node_modules || true && npm cache clean --force",
+		"clean": "rm -rfv ./node_modules || true && rm -fv ./package-lock.json || true && npm cache clean --force",
 		"reset": "npm run clean && rm -rfv ./create-node-shell-module.js || true && rm -rfv ./.build || true && rm -rfv ./.test || true",
-		"bundle": "npx parcel build ./*.module.js --no-cache --no-source-maps --no-minify --target node --bundle-node-modules --out-dir ./.build --out-file ./create-node-shell-module.js --global createNodeShellModule && mv ./.build/create-node-shell-module.js ./create-node-shell-module.js && rm -rfv ./.build || true",
+		"bundle": "npx parcel build ./*.module.js --no-cache --no-source-maps --no-minify --target node --out-dir ./.build --out-file ./create-node-shell-module.js --global createNodeShellModule && mv ./.build/create-node-shell-module.js ./create-node-shell-module.js && rm -rfv ./.build || true",
 		"compress": "npx terser ./create-node-shell-module.js --compress --output ./create-node-shell-module.js",
 		"build": "npm run bundle && npm run compress",
 		"test": "node ./create-node-shell-module.test.js",
@@ -38,6 +38,7 @@
 	},
 	"homepage": "https://github.com/volkovasystem/create-node-shell-module#readme",
 	"dependencies": {
-		"create-node-module": "npm:@volkovasystem/create-node-module@0.0.2"
+		"format-package-json-file": "npm:@volkovasystem/format-package-json-file@0.0.7",
+		"create-node-module": "npm:@volkovasystem/create-node-module@0.0.5"
 	}
 }
