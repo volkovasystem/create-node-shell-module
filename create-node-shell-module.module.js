@@ -438,13 +438,49 @@ const createNodeShellModule = (
 
 								(
 									{
-										"scripts": {
-											[ `${ moduleValueNamespace }` ]: `node ./${ moduleValueNamespace }.run.js`
-										},
+										"scripts": (
+											Object
+											.assign(
+												(
+													{ }
+												),
 
-										"bin": {
-											[ `${ moduleValueNamespace }` ]: `${ moduleValueNamespace }.run.js`
-										},
+												(
+													packageData
+													.scripts
+												),
+
+												(
+													{
+														[ `${ moduleValueNamespace }` ]: (
+															`node ./${ moduleValueNamespace }.run.js`
+														)
+													}
+												)
+											)
+										),
+
+										"bin": (
+											Object
+											.assign(
+												(
+													{ }
+												),
+
+												(
+													packageData
+													.bin
+												),
+
+												(
+													{
+														[ `${ moduleValueNamespace }` ]: (
+															`${ moduleValueNamespace }.run.js`
+														)
+													}
+												)
+											)
+										)
 									}
 								)
 							)
@@ -501,6 +537,28 @@ const createNodeShellModule = (
 							await	formatPackageJSONFile(
 										(
 											moduleDirectoryPath
+										),
+
+										(
+											{
+												"propertyList": (
+													[
+														"name",
+														"version",
+														"description",
+														"main",
+														"scripts",
+														"bin",
+														"repository",
+														"keywords",
+														"author",
+														"contributors",
+														"license",
+														"bugs",
+														"homepage"
+													]
+												)
+											}
 										)
 									)
 						);
