@@ -8,23 +8,9 @@ const strictAssert = (
 	.strict
 );
 
-const createNodeShellModule = (
-	require( "./create-node-shell-module.js" )
-);
-
 const executeShellCommand = (
 	async	function executeShellCommand( shellCommand, moduleDirectoryPath ){
 				const childProcess = require( "child_process" );
-
-				const executeAsync = (
-					util
-					.promisify(
-						(
-							childProcess
-							.exec
-						)
-					)
-				);
 
 				try{
 					const	{
@@ -32,14 +18,20 @@ const executeShellCommand = (
 								stderr
 							}
 						=	(
-								await	executeAsync(
+								await	util
+										.promisify(
+											(
+												childProcess
+												.exec
+											)
+										)(
 											(
 												shellCommand
 											),
 
 											(
 												{
-													"moduleDirectoryPath": (
+													"cwd": (
 															(
 																moduleDirectoryPath
 															)
@@ -85,8 +77,54 @@ const executeShellCommand = (
 			}
 );
 
-const TEST_SETUP_DIRECTORY = (
-	async	function TEST_SETUP_DIRECTORY( ){
+const SETUP_TEST_DIRECTORY = (
+	async	function SETUP_TEST_DIRECTORY( ){
+				const shellParameterList = (
+					process
+					.argv
+				);
+
+				const DISABLE_SETUP_TEST_DIRECTORY_SHELL_PARAMETER = (
+					"--disableSetupTestDirectory"
+				);
+
+				const DISABLE_SETUP_TEST_DIRECTORY_SHORT_SHELL_PARAMETER = (
+					"--xstd"
+				);
+
+				const disableSetupTestDirectory = (
+						(
+								shellParameterList
+								.includes(
+									(
+										DISABLE_SETUP_TEST_DIRECTORY_SHELL_PARAMETER
+									)
+								)
+							===	true
+						)
+
+					||	(
+								shellParameterList
+								.includes(
+									(
+										DISABLE_SETUP_TEST_DIRECTORY_SHORT_SHELL_PARAMETER
+									)
+								)
+							===	true
+						)
+				);
+
+				if(
+						(
+								disableSetupTestDirectory
+							===	true
+						)
+				){
+					return	(
+								true
+							);
+				}
+
 				return	(
 							await	executeShellCommand(
 										(
@@ -97,8 +135,54 @@ const TEST_SETUP_DIRECTORY = (
 			}
 );
 
-const TEST_CLEANUP_DIRECTORY = (
-	async	function TEST_CLEANUP_DIRECTORY( ){
+const CLEAN_TEST_DIRECTORY = (
+	async	function CLEAN_TEST_DIRECTORY( ){
+				const shellParameterList = (
+					process
+					.argv
+				);
+
+				const DISABLE_CLEAN_TEST_DIRECTORY_SHELL_PARAMETER = (
+					"--disableCleanTestDirectory"
+				);
+
+				const DISABLE_CLEAN_TEST_DIRECTORY_SHORT_SHELL_PARAMETER = (
+					"--xctd"
+				);
+
+				const disableCleanTestDirectory = (
+						(
+								shellParameterList
+								.includes(
+									(
+										DISABLE_CLEAN_TEST_DIRECTORY_SHELL_PARAMETER
+									)
+								)
+							===	true
+						)
+
+					||	(
+								shellParameterList
+								.includes(
+									(
+										DISABLE_CLEAN_TEST_DIRECTORY_SHORT_SHELL_PARAMETER
+									)
+								)
+							===	true
+						)
+				);
+
+				if(
+						(
+								disableCleanTestDirectory
+							===	true
+						)
+				){
+					return	(
+								true
+							);
+				}
+
 				return	(
 							await	executeShellCommand(
 										(
@@ -109,14 +193,18 @@ const TEST_CLEANUP_DIRECTORY = (
 			}
 );
 
+const createNodeShellModule = (
+	require( "./create-node-shell-module.js" )
+);
+
 const TEST_CREATE_NODE_SHELL_MODULE = (
 	async	function TEST_CREATE_NODE_SHELL_MODULE( ){
 				(
-					await	TEST_CLEANUP_DIRECTORY( )
+					await	CLEAN_TEST_DIRECTORY( )
 				);
 
 				(
-					await	TEST_SETUP_DIRECTORY( )
+					await	SETUP_TEST_DIRECTORY( )
 				);
 
 				(
@@ -128,7 +216,9 @@ const TEST_CREATE_NODE_SHELL_MODULE = (
 										".test/test-create-node-shell-module"
 									]
 									.join(
-										" "
+										(
+											" "
+										)
 									)
 								)
 							)
@@ -158,6 +248,7 @@ const TEST_CREATE_NODE_SHELL_MODULE = (
 								"#test-create-node-shell-module;",
 
 								"test create node shell module;",
+
 								`must return ${ testValue };`
 							]
 						)
@@ -181,7 +272,7 @@ const TEST_CREATE_NODE_SHELL_MODULE = (
 				}
 				finally{
 					(
-						await	TEST_CLEANUP_DIRECTORY( )
+						await	CLEAN_TEST_DIRECTORY( )
 					);
 				}
 			}
@@ -190,11 +281,11 @@ const TEST_CREATE_NODE_SHELL_MODULE = (
 const TEST_CREATE_NODE_SHELL_MODULE_FILE_LIST = (
 	async	function TEST_CREATE_NODE_SHELL_MODULE_FILE_LIST( ){
 				(
-					await	TEST_CLEANUP_DIRECTORY( )
+					await	CLEAN_TEST_DIRECTORY( )
 				);
 
 				(
-					await	TEST_SETUP_DIRECTORY( )
+					await	SETUP_TEST_DIRECTORY( )
 				);
 
 				(
@@ -206,7 +297,9 @@ const TEST_CREATE_NODE_SHELL_MODULE_FILE_LIST = (
 										".test/test-create-node-shell-module"
 									]
 									.join(
-										" "
+										(
+											" "
+										)
 									)
 								)
 							)
@@ -256,7 +349,9 @@ const TEST_CREATE_NODE_SHELL_MODULE_FILE_LIST = (
 
 										(
 											{
-												"withFileTypes": true
+												"withFileTypes": (
+													true
+												)
 											}
 										)
 									)
@@ -324,7 +419,8 @@ const TEST_CREATE_NODE_SHELL_MODULE_FILE_LIST = (
 
 								"test create node shell module file list;",
 								`must contain the following, ${ testModuleFileList };`,
-								`must return ${ testValue };`
+
+								`must assert to ${ testValue };`
 							]
 						)
 					);
@@ -347,7 +443,7 @@ const TEST_CREATE_NODE_SHELL_MODULE_FILE_LIST = (
 				}
 				finally{
 					(
-						await	TEST_CLEANUP_DIRECTORY( )
+						await	CLEAN_TEST_DIRECTORY( )
 					);
 				}
 			}
@@ -356,7 +452,7 @@ const TEST_CREATE_NODE_SHELL_MODULE_FILE_LIST = (
 (
 	async	function TEST_SCENE_BASIC( ){
 				(
-					await	TEST_CLEANUP_DIRECTORY( )
+					await	CLEAN_TEST_DIRECTORY( )
 				);
 
 				console
@@ -387,7 +483,7 @@ const TEST_CREATE_NODE_SHELL_MODULE_FILE_LIST = (
 				);
 
 				(
-					await	TEST_CLEANUP_DIRECTORY( )
+					await	CLEAN_TEST_DIRECTORY( )
 				);
 			}
 )( );
