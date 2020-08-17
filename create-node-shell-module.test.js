@@ -11,6 +11,46 @@ const strictAssert = (
 const executeShellCommand = (
 	async	function executeShellCommand( shellCommand, moduleDirectoryPath ){
 				const childProcess = require( "child_process" );
+				const path = require( "path" );
+
+				const execAsync = (
+					util
+					.promisify(
+						(
+							childProcess
+							.exec
+						)
+					)
+				);
+
+				if(
+						(
+								typeof
+								moduleDirectoryPath
+							==	"string"
+						)
+
+					&&	(
+								moduleDirectoryPath
+								.length
+							>	0
+						)
+				){
+					moduleDirectoryPath = (
+						path
+						.resolve(
+							(
+								moduleDirectoryPath
+							)
+						)
+					);
+				}
+				else{
+					moduleDirectoryPath = (
+						process
+						.cwd( )
+					);
+				}
 
 				try{
 					const	{
@@ -18,13 +58,7 @@ const executeShellCommand = (
 								stderr
 							}
 						=	(
-								await	util
-										.promisify(
-											(
-												childProcess
-												.exec
-											)
-										)(
+								await	execAsync(
 											(
 												shellCommand
 											),
@@ -32,14 +66,7 @@ const executeShellCommand = (
 											(
 												{
 													"cwd": (
-															(
-																moduleDirectoryPath
-															)
-
-														||	(
-																process
-																.cwd( )
-															)
+														moduleDirectoryPath
 													)
 												}
 											)
@@ -225,6 +252,14 @@ const TEST_CREATE_NODE_SHELL_MODULE = (
 				);
 
 				try{
+					const actualValue = (
+						await	createNodeShellModule(
+									(
+										".test/test-create-node-shell-module"
+									)
+								)
+					);
+
 					const testValue = (
 						true
 					);
@@ -232,11 +267,7 @@ const TEST_CREATE_NODE_SHELL_MODULE = (
 					strictAssert
 					.equal(
 						(
-							await	createNodeShellModule(
-										(
-											".test/test-create-node-shell-module"
-										)
-									)
+							actualValue
 						),
 
 						(
@@ -249,7 +280,7 @@ const TEST_CREATE_NODE_SHELL_MODULE = (
 
 								"test create node shell module;",
 
-								`must return ${ testValue };`
+								`must return, ${ testValue };`
 							]
 						)
 					);
@@ -325,20 +356,6 @@ const TEST_CREATE_NODE_SHELL_MODULE_FILE_LIST = (
 								)
 					);
 
-					const testModuleFileList = (
-						[
-							".editorconfig",
-							".gitignore",
-							".npmignore",
-							"LICENSE",
-							"package.json",
-							"README.md",
-							"test-create-node-shell-module.module.js",
-							"test-create-node-shell-module.run.js",
-							"test-create-node-shell-module.test.js"
-						]
-					);
-
 					const actualModuleFileList = (
 						(
 							await	fsAsync
@@ -374,6 +391,49 @@ const TEST_CREATE_NODE_SHELL_MODULE_FILE_LIST = (
 						)
 					);
 
+					const testModuleFileList = (
+						[
+							".editorconfig",
+							".gitignore",
+							".npmignore",
+							"LICENSE",
+							"package.json",
+							"README.md",
+							"test-create-node-shell-module.module.js",
+							"test-create-node-shell-module.run.js",
+							"test-create-node-shell-module.test.js"
+						]
+					);
+
+					const actualValue = (
+							(
+									(
+										testModuleFileList
+										.length
+									)
+								===	(
+										actualModuleFileList
+										.length
+									)
+							)
+
+						&&	(
+								testModuleFileList
+								.every(
+									(
+										( fileName ) => (
+											actualModuleFileList
+											.includes(
+												(
+													fileName
+												)
+											)
+										)
+									)
+								)
+							)
+					);
+
 					const testValue = (
 						true
 					);
@@ -381,32 +441,7 @@ const TEST_CREATE_NODE_SHELL_MODULE_FILE_LIST = (
 					strictAssert
 					.equal(
 						(
-								(
-										(
-											testModuleFileList
-											.length
-										)
-									===	(
-											actualModuleFileList
-											.length
-										)
-								)
-
-							&&	(
-									testModuleFileList
-									.every(
-										(
-											( fileName ) => (
-												actualModuleFileList
-												.includes(
-													(
-														fileName
-													)
-												)
-											)
-										)
-									)
-								)
+							actualValue
 						),
 
 						(
@@ -420,7 +455,7 @@ const TEST_CREATE_NODE_SHELL_MODULE_FILE_LIST = (
 								"test create node shell module file list;",
 								`must contain the following, ${ testModuleFileList };`,
 
-								`must assert to ${ testValue };`
+								`must assert to, ${ testValue };`
 							]
 						)
 					);
