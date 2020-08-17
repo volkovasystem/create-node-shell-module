@@ -1,6 +1,6 @@
 {
 	"name": "@volkovasystem/create-node-shell-module",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"description": "Fast bootstrap node shell module.",
 	"main": "create-node-shell-module.js",
 	"scripts": {
@@ -39,6 +39,6 @@
 	"homepage": "https://github.com/volkovasystem/create-node-shell-module#readme",
 	"dependencies": {
 		"format-package-json-file": "npm:@volkovasystem/format-package-json-file@0.0.8",
-		"create-node-module": "npm:@volkovasystem/create-node-module@0.0.7"
+		"create-node-module": "npm:@volkovasystem/create-node-module@0.0.9"
 	}
 }
