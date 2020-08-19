@@ -97,7 +97,7 @@ const MODULE_VARIABLE_TITLE_NAMESPACE_REPLACER_PATTERN = (
 	)
 );
 
-const GET_MODULE_VARIABLE_NAMESPACE_SHELL_COMMAND = (
+const GET_MODULE_VALUE_NAMESPACE_SHELL_SCRIPT = (
 	"basename $(git remote get-url origin) .git"
 );
 
@@ -105,8 +105,8 @@ const RUN_TEMPLATE_FILE_PATH = (
 	`${ __dirname }/run.template.js`
 );
 
-const getShellCommandResult = (
-	async	function getShellCommandResult( shellCommand, moduleDirectoryPath ){
+const getShellScriptResult = (
+	async	function getShellScriptResult( shellScript, moduleDirectoryPath ){
 				const resultList = (
 					[ ]
 				);
@@ -116,7 +116,7 @@ const getShellCommandResult = (
 						childProcess
 						.exec(
 							(
-								shellCommand
+								shellScript
 							),
 
 							(
@@ -195,13 +195,49 @@ const createNodeShellModule = (
 								[
 									@type:
 											object with {
-												"moduleValueNamespace": "[@type:string;]",
-												"moduleScope": "[@type:string;]",
-												"moduleDescription": "[@type:string;]",
-												"authorTitleNamespace": "[@type:string;]",
-												"authorContactDetail": "[@type:string]"
+												"moduleValueNamespace": "
+													[
+														@type:
+																string
+														@end-type
+													]
+												",
+
+												"moduleScope": "
+													[
+														@type:
+																string
+														@end-type
+													]
+												",
+
+												"moduleDescription": "
+													[
+														@type:
+																string
+														@end-type
+													]
+												",
+
+												"authorTitleNamespace": "
+													[
+														@type:
+																string
+														@end-type
+													]
+												",
+
+												"authorContactDetail": "
+													[
+														@type:
+																string
+														@end-type
+													]
+												",
 											}
 									@end-type
+
+									<@optional;>
 								]
 							"
 						}
@@ -228,6 +264,7 @@ const createNodeShellModule = (
 									@end-type
 
 									<@tag:invalid-module-directory-path;>
+									<@tag:undefined-module-directory;>
 									<@tag:cannot-create-node-shell-module;>
 								]
 							"
@@ -248,324 +285,16 @@ const createNodeShellModule = (
 									.length
 								>	1
 							)
-
-						&&	(
-									(
-										await	fsAsync
-												.stat(
-													(
-														moduleDirectoryPath
-													)
-												)
-									)
-									.isDirectory( )
-								===	true
-							)
 					){
-						option = (
-								(
-									option
-								)
-
-							||	(
-									{ }
-								)
-						);
-
-						(
-							await	createNodeModule(
-										(
-											moduleDirectoryPath
-										),
-
-										(
-											option
-										)
-									)
-						);
-
-						const moduleValueNamespace = (
-								(
-										(
-												typeof
-												option
-												.moduleValueNamespace
-											==	"string"
-										)
-
-									&&	(
-												(
-													option
-													.moduleValueNamespace
-												)
-												.length
-											>	0
-										)
-								)
-							?	(
-									option
-									.moduleValueNamespace
-								)
-							:	(
-									await	getShellCommandResult(
-												(
-													GET_MODULE_VARIABLE_NAMESPACE_SHELL_COMMAND
-												),
-
-												(
-													moduleDirectoryPath
-												)
-											)
-								)
-						);
-
-						const moduleVariableNamespace = (
-							moduleValueNamespace
-							.replace(
-								(
-									/\-([a-z0-9])/g
-								),
-
-								(
-									( match ) => (
-										match
-										.slice(
-											(
-												1
-											)
-										)
-										.toUpperCase( )
+							moduleDirectoryPath
+						=	(
+								path
+								.resolve(
+									(
+										moduleDirectoryPath
 									)
 								)
-							)
-						);
-
-						const moduleVariableTitleNamespace = (
-							moduleVariableNamespace
-							.replace(
-								(
-									/^[a-z]/
-								),
-
-								(
-									( match ) => (
-										match
-										.toUpperCase( )
-									)
-								)
-							)
-						);
-
-						const packageData = (
-							JSON
-							.parse(
-								(
-									await	fsAsync
-											.readFile(
-												(
-													path
-													.resolve(
-														(
-															moduleDirectoryPath
-														),
-
-														(
-															"package.json"
-														)
-													)
-												),
-
-												(
-													"utf8"
-												)
-											)
-								)
-							)
-						);
-
-						const RUN_TEMPLATE = (
-							(
-								await	fsAsync
-										.readFile(
-											(
-												RUN_TEMPLATE_FILE_PATH
-											),
-
-											(
-												"utf8"
-											)
-										)
-							)
-							.replace(
-								(
-									MODULE_VARIABLE_NAMESPACE_REPLACER_PATTERN
-								),
-
-								(
-									moduleVariableNamespace
-								)
-							)
-							.replace(
-								(
-									MODULE_VARIABLE_TITLE_NAMESPACE_REPLACER_PATTERN
-								),
-
-								(
-									moduleVariableTitleNamespace
-								)
-							)
-							.replace(
-								(
-									MODULE_VALUE_NAMESPACE_REPLACER_PATTERN
-								),
-
-								(
-									moduleValueNamespace
-								)
-							)
-						);
-
-						const PACKAGE_TEMPLATE = (
-							Object
-							.assign(
-								(
-									{ }
-								),
-
-								(
-									packageData
-								),
-
-								(
-									{
-										"scripts": (
-											Object
-											.assign(
-												(
-													{ }
-												),
-
-												(
-													packageData
-													.scripts
-												),
-
-												(
-													{
-														[ `${ moduleValueNamespace }` ]: (
-															`node ./${ moduleValueNamespace }.run.js`
-														)
-													}
-												)
-											)
-										),
-
-										"bin": (
-											Object
-											.assign(
-												(
-													{ }
-												),
-
-												(
-													packageData
-													.bin
-												),
-
-												(
-													{
-														[ `${ moduleValueNamespace }` ]: (
-															`${ moduleValueNamespace }.run.js`
-														)
-													}
-												)
-											)
-										)
-									}
-								)
-							)
-						);
-
-						(
-							await	writeFile(
-										(
-											path
-											.resolve(
-												(
-													moduleDirectoryPath
-												),
-
-												(
-													`${ moduleValueNamespace }.run.js`
-												)
-											)
-										),
-
-										(
-											RUN_TEMPLATE
-										)
-									)
-						);
-
-						(
-							await	writeFile(
-										(
-											path
-											.resolve(
-												(
-													moduleDirectoryPath
-												),
-
-												(
-													"package.json"
-												)
-											)
-										),
-
-										(
-											JSON
-											.stringify(
-												(
-													PACKAGE_TEMPLATE
-												)
-											)
-										)
-									)
-						);
-
-						(
-							await	formatPackageJSONFile(
-										(
-											moduleDirectoryPath
-										),
-
-										(
-											{
-												"propertyList": (
-													[
-														"name",
-														"version",
-														"description",
-														"main",
-														"scripts",
-														"bin",
-														"repository",
-														"keywords",
-														"author",
-														"contributors",
-														"license",
-														"bugs",
-														"homepage"
-													]
-												)
-											}
-										)
-									)
-						);
-
-						return	(
-									true
-								);
+							);
 					}
 					else{
 						throw	(
@@ -584,6 +313,342 @@ const createNodeShellModule = (
 										)
 								);
 					}
+
+					if(
+							(
+									(
+										await	fsAsync
+												.stat(
+													(
+														moduleDirectoryPath
+													)
+												)
+									)
+									.isDirectory( )
+								!==	true
+							)
+					){
+						throw	(
+									new	Error(
+											(
+												[
+													"#undefined-module-directory;",
+
+													"cannot create node shell module;",
+													"undefined module directory;",
+
+													"@module-directory-path:",
+													`${ moduleDirectoryPath };`
+												]
+											)
+										)
+								);
+					}
+
+					option = (
+							(
+								option
+							)
+
+						||	(
+								{ }
+							)
+					);
+
+					(
+						await	createNodeModule(
+									(
+										moduleDirectoryPath
+									),
+
+									(
+										option
+									)
+								)
+					);
+
+					const moduleValueNamespace = (
+							(
+									(
+											typeof
+											option
+											.moduleValueNamespace
+										==	"string"
+									)
+
+								&&	(
+											(
+												option
+												.moduleValueNamespace
+											)
+											.length
+										>	0
+									)
+							)
+						?	(
+								option
+								.moduleValueNamespace
+							)
+						:	(
+								await	getShellScriptResult(
+											(
+												GET_MODULE_VALUE_NAMESPACE_SHELL_SCRIPT
+											),
+
+											(
+												moduleDirectoryPath
+											)
+										)
+							)
+					);
+
+					const moduleVariableNamespace = (
+						moduleValueNamespace
+						.replace(
+							(
+								/\-([a-z0-9])/g
+							),
+
+							(
+								( match ) => (
+									match
+									.slice(
+										(
+											1
+										)
+									)
+									.toUpperCase( )
+								)
+							)
+						)
+					);
+
+					const moduleVariableTitleNamespace = (
+						moduleVariableNamespace
+						.replace(
+							(
+								/^[a-z]/
+							),
+
+							(
+								( match ) => (
+									match
+									.toUpperCase( )
+								)
+							)
+						)
+					);
+
+					const packageData = (
+						JSON
+						.parse(
+							(
+								await	fsAsync
+										.readFile(
+											(
+												path
+												.resolve(
+													(
+														moduleDirectoryPath
+													),
+
+													(
+														"package.json"
+													)
+												)
+											),
+
+											(
+												"utf8"
+											)
+										)
+							)
+						)
+					);
+
+					const RUN_TEMPLATE = (
+						(
+							await	fsAsync
+									.readFile(
+										(
+											RUN_TEMPLATE_FILE_PATH
+										),
+
+										(
+											"utf8"
+										)
+									)
+						)
+						.replace(
+							(
+								MODULE_VARIABLE_NAMESPACE_REPLACER_PATTERN
+							),
+
+							(
+								moduleVariableNamespace
+							)
+						)
+						.replace(
+							(
+								MODULE_VARIABLE_TITLE_NAMESPACE_REPLACER_PATTERN
+							),
+
+							(
+								moduleVariableTitleNamespace
+							)
+						)
+						.replace(
+							(
+								MODULE_VALUE_NAMESPACE_REPLACER_PATTERN
+							),
+
+							(
+								moduleValueNamespace
+							)
+						)
+					);
+
+					const PACKAGE_TEMPLATE = (
+						Object
+						.assign(
+							(
+								{ }
+							),
+
+							(
+								packageData
+							),
+
+							(
+								{
+									"scripts": (
+										Object
+										.assign(
+											(
+												{ }
+											),
+
+											(
+												packageData
+												.scripts
+											),
+
+											(
+												{
+													[ `${ moduleValueNamespace }` ]: (
+														`node ./${ moduleValueNamespace }.run.js`
+													)
+												}
+											)
+										)
+									),
+
+									"bin": (
+										Object
+										.assign(
+											(
+												{ }
+											),
+
+											(
+												packageData
+												.bin
+											),
+
+											(
+												{
+													[ `${ moduleValueNamespace }` ]: (
+														`${ moduleValueNamespace }.run.js`
+													)
+												}
+											)
+										)
+									)
+								}
+							)
+						)
+					);
+
+					(
+						await	writeFile(
+									(
+										path
+										.resolve(
+											(
+												moduleDirectoryPath
+											),
+
+											(
+												`${ moduleValueNamespace }.run.js`
+											)
+										)
+									),
+
+									(
+										RUN_TEMPLATE
+									)
+								)
+					);
+
+					(
+						await	writeFile(
+									(
+										path
+										.resolve(
+											(
+												moduleDirectoryPath
+											),
+
+											(
+												"package.json"
+											)
+										)
+									),
+
+									(
+										JSON
+										.stringify(
+											(
+												PACKAGE_TEMPLATE
+											)
+										)
+									)
+								)
+					);
+
+					(
+						await	formatPackageJSONFile(
+									(
+										moduleDirectoryPath
+									),
+
+									(
+										{
+											"propertyList": (
+												[
+													"name",
+													"version",
+													"description",
+													"main",
+													"scripts",
+													"bin",
+													"repository",
+													"keywords",
+													"author",
+													"contributors",
+													"license",
+													"bugs",
+													"homepage"
+												]
+											)
+										}
+									)
+								)
+					);
+
+					return	(
+								true
+							);
 				}
 				catch( error ){
 					throw	(
