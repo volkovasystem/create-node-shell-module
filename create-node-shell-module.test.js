@@ -1,5 +1,6 @@
 "use strict";
 
+//; @template-engine-code-space;
 const assert = require( "assert" );
 const util = require( "util" );
 
@@ -8,8 +9,142 @@ const strictAssert = (
 	.strict
 );
 
-const executeShellCommand = (
-	async	function executeShellCommand( shellCommand, moduleDirectoryPath ){
+//; @check-directory-procedure;
+const checkDirectory = (
+	async	function checkDirectory( directoryPath ){
+					const fs = require( "fs" );
+					const path = require( "path" );
+
+					const fsAsync = (
+						fs
+						.promises
+					);
+
+						directoryPath
+					=	(
+							path
+							.resolve(
+								(
+									directoryPath
+								)
+							)
+						);
+
+					try{
+						return	(
+									(
+										await	fsAsync
+												.stat(
+													(
+														directoryPath
+													)
+												)
+									)
+									.isDirectory( )
+								);
+					}
+					catch( error ){
+						return	(
+									false
+								);
+					}
+			}
+);
+//; @end-check-directory-procedure;
+
+//; @check-file-procedure;
+const checkFile = (
+	async	function checkFile( filePath ){
+					const fs = require( "fs" );
+					const path = require( "path" );
+
+					const fsAsync = (
+						fs
+						.promises
+					);
+
+						filePath
+					=	(
+							path
+							.resolve(
+								(
+									filePath
+								)
+							)
+						);
+
+					try{
+						return	(
+									(
+										await	fsAsync
+												.stat(
+													(
+														filePath
+													)
+												)
+									)
+									.isFile( )
+								);
+					}
+					catch( error ){
+						return	(
+									false
+								);
+					}
+			}
+);
+//; @end-check-file-procedure;
+
+//;	@get-directory-file-list-procedure;
+const getDirectoryFileList = (
+	async	function getDirectoryFileList( directoryPath ){
+				const fs = require( "fs" );
+				const path = require( "path" );
+
+				const fsAsync = (
+					fs
+					.promises
+				);
+
+					directoryPath
+				=	(
+						path
+						.resolve(
+							(
+								directoryPath
+							)
+						)
+					);
+
+				try{
+					return	(
+								await	fsAsync
+										.readdir(
+											(
+												directoryPath
+											),
+
+											(
+												{
+													"withFileTypes": (
+														true
+													)
+												}
+											)
+										)
+							);
+				}
+				catch( error ){
+					return	(
+								[ ]
+							);
+				}
+			}
+);
+//; @end-get-directory-file-list-procedure;
+
+const executeShellScript = (
+	async	function executeShellScript( shellScript, moduleDirectoryPath ){
 				const childProcess = require( "child_process" );
 				const path = require( "path" );
 
@@ -60,7 +195,7 @@ const executeShellCommand = (
 						=	(
 								await	execAsync(
 											(
-												shellCommand
+												shellScript
 											),
 
 											(
@@ -153,7 +288,7 @@ const SETUP_TEST_DIRECTORY = (
 				}
 
 				return	(
-							await	executeShellCommand(
+							await	executeShellScript(
 										(
 											"mkdir .test || true"
 										)
@@ -211,7 +346,7 @@ const CLEAN_TEST_DIRECTORY = (
 				}
 
 				return	(
-							await	executeShellCommand(
+							await	executeShellScript(
 										(
 											"rm -rfv .test || true"
 										)
@@ -219,6 +354,7 @@ const CLEAN_TEST_DIRECTORY = (
 						);
 			}
 );
+//; @end-template-engine-code-space;
 
 const createNodeShellModule = (
 	require( "./create-node-shell-module.js" )
@@ -235,7 +371,7 @@ const TEST_CREATE_NODE_SHELL_MODULE = (
 				);
 
 				(
-					await	executeShellCommand(
+					await	executeShellScript(
 								(
 									[
 										"git clone",
@@ -319,13 +455,17 @@ const TEST_CREATE_NODE_SHELL_MODULE_FILE_LIST = (
 					await	SETUP_TEST_DIRECTORY( )
 				);
 
+				const moduleDirectoryPath = (
+					".test/test-create-node-shell-module"
+				);
+
 				(
-					await	executeShellCommand(
+					await	executeShellScript(
 								(
 									[
 										"git clone",
 										"https://github.com/volkovasystem/test-create-node-shell-module.git",
-										".test/test-create-node-shell-module"
+										moduleDirectoryPath
 									]
 									.join(
 										(
@@ -337,39 +477,21 @@ const TEST_CREATE_NODE_SHELL_MODULE_FILE_LIST = (
 				);
 
 				try{
-					const fs = require( "fs" );
 
-					const fsAsync = (
-						fs
-						.promises
-					);
-
-					const testDirectory = (
-						".test/test-create-node-shell-module"
-					);
 
 					(
 						await	createNodeShellModule(
 									(
-										testDirectory
+										moduleDirectoryPath
 									)
 								)
 					);
 
 					const actualModuleFileList = (
 						(
-							await	fsAsync
-									.readdir(
+							await	getDirectoryFileList(
 										(
-											testDirectory
-										),
-
-										(
-											{
-												"withFileTypes": (
-													true
-												)
-											}
+											moduleDirectoryPath
 										)
 									)
 						)
